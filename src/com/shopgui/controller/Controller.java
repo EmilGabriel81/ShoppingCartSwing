@@ -10,7 +10,7 @@ import com.shopgui.objects.*;
 import com.shopgui.model.*;
 
 public class Controller {
-	
+
 	private String infoMessage;
 	Database db = new Database();
 
@@ -59,6 +59,7 @@ public class Controller {
 			JOptionPane.showMessageDialog(null, "The system cannot find the file specified", "ERROR",
 					JOptionPane.ERROR_MESSAGE);
 		}
+
 	}
 
 	private void fetchData(String line) {
@@ -90,15 +91,23 @@ public class Controller {
 	}
 
 	public void init() {
+		ShoppingCartEntry entry01 = new ShoppingCartEntry("Hook", "Mustad", 3.5, 1.0, 4);
+		ShoppingCartEntry entry02 = new ShoppingCartEntry("Hook", "Rapala", 5.5, 1.5, 3);
+		ShoppingCartEntry entry03 = new ShoppingCartEntry("Monofilament", "Arrow", 0.2, 0.5, 4);
+		ShoppingCartEntry entry04 = new ShoppingCartEntry("Minnow Spoon", "Rapala", 70.0, 1.0, 1);
 
-		Item item01 = new Item("Hook", "Mustad", 3.5, 0.75, 20, "Universal");
-		Item item02 = new Item("Hook", "Mustad", 2.5, 0.50, 20, "Universal");
-		Item item03 = new Item("Sinker", "Daiwa", 5.0, 1.00, 20, "Universal");
-		Item item04 = new Item("Fishing line", "Arrow", 0.25, 1.50, 20, "Universal");
-		db.addItem(item01);
-		db.addItem(item02);
-		db.addItem(item03);
-		db.addItem(item04);
+//		Item item01 = new Item("Hook", "Mustad", 3.5, 0.75, 20, "Universal");
+//		Item item02 = new Item("Hook", "Mustad", 2.5, 0.50, 20, "Universal");
+//		Item item03 = new Item("Sinker", "Daiwa", 5.0, 1.00, 20, "Universal");
+//		Item item04 = new Item("Fishing line", "Arrow", 0.25, 1.50, 20, "Universal");
+//		db.addItem(item01);
+//		db.addItem(item02);
+//		db.addItem(item03);
+//		db.addItem(item04);
+		db.addEntries(entry01);
+		db.addEntries(entry02);
+		db.addEntries(entry03);
+		db.addEntries(entry04);
 	}
 
 	/**
@@ -117,9 +126,7 @@ public class Controller {
 	}
 
 	public double getTotalPrice() {
-
 		double total = 0;
-
 		for (ShoppingCartEntry entry : getCartContent()) {
 			total += entry.getTotalPrice();
 		}
@@ -128,21 +135,26 @@ public class Controller {
 
 	public String getCartDetails() {
 		StringBuilder cartItems = new StringBuilder();
-		cartItems.append("-------------------------------------------------------\n");
+		cartItems.append(
+				" ------------------------------------------------------------------------------------------------------- \n");
 
 		for (ShoppingCartEntry en : getCartContent()) {
 			// cartItems=en.getName()+" "+en.getPrice()+" "+en.getQuantity()+"\n";
-			cartItems.append(en.getName() + ", " + en.getProdDescr() + ", " + en.getProdSize() + ", " + en.getPrice()
-					+ ", " + en.getQuantity() + " -> Total : " + en.getTotalPrice() + "\n");
-			System.out.println(en.getName() + " " + en.getPrice() + " " + en.getQuantity() + "\n");
+			cartItems.append(en.getName() + " " + en.getProdDescr() + " ,Size: " + en.getProdSize()
+					+ "                 " + en.getQuantity() + " X " + en.getPrice() + " $             Total : "
+					+ en.getTotalPrice() + " $ \n");
+			// System.out.println(en.getName() + " " + en.getPrice() + " " +
+			// en.getQuantity() + "\n");
 		}
-		cartItems.append("-------------------------------------------------------\n");
+		cartItems.append(
+				" ------------------------------------------------------------------------------------------------------- \n");
 		String build = cartItems.toString();
 		return build;
 	}
 
 	public int cancelOrder() {
 		if (!this.getCartContent().isEmpty()) {
+			adjustStock();
 			getCartContent().clear();
 			return 0;
 		}
@@ -150,24 +162,24 @@ public class Controller {
 	}
 
 	public int submitOrder() {
-		infoMessage ="";
+		infoMessage = "";
 		if (!getCartContent().isEmpty()) {
-			for(Item itm : getInvItems()) {
-				for(ShoppingCartEntry entry : getCartContent()) {
-					if(itm.getItemName().equalsIgnoreCase(entry.getName()) && itm.getItemSize()==entry.getProdSize()){
-						System.out.println("Item : "+itm.getItemName()+" ->"+itm.getItemQuantity()+
-								          " Entry : "+entry.getName()+" "+entry.getQuantity());
-						itm.setItemQuantity(itm.getItemQuantity()-entry.getQuantity());
-						System.out.println("Items left in store : "+itm.getItemName()+" "+itm.getItemQuantity());
-						setInfoMessage(infoMessage.concat(entry.getName()+" "+entry.getProdDescr()+
-								                          " "+entry.getQuantity()+" pcs"+"  -----------------    Total "+
-								                              entry.getTotalPrice()+" $ \n"));
-						
-						
+			for (Item itm : getInvItems()) {
+				for (ShoppingCartEntry entry : getCartContent()) {
+					if (itm.getItemName().equalsIgnoreCase(entry.getName())
+							&& itm.getItemSize() == entry.getProdSize()) {
+						// System.out.println("Item : "+itm.getItemName()+" ->"+itm.getItemQuantity()+
+						// " Entry : "+entry.getName()+" "+entry.getQuantity());
+						// itm.setItemQuantity(itm.getItemQuantity()-entry.getQuantity());
+						// System.out.println("Items left in store : "+itm.getItemName()+"
+						// "+itm.getItemQuantity());
+						setInfoMessage(infoMessage
+								.concat(entry.getName() + " " + entry.getProdDescr() + " " + entry.getQuantity()
+										+ " pcs" + "  -----------------    Total " + entry.getTotalPrice() + " $ \n"));
 					}
 				}
 			}
-			setInfoMessage(getInfoMessage()+" \n"+"Total price : "+getTotalPrice()+" $");
+			setInfoMessage(getInfoMessage() + " \n" + "Total price : " + getTotalPrice() + " $ \n");
 			getCartContent().clear();
 			return 0;
 		}
@@ -181,6 +193,24 @@ public class Controller {
 	public void setInfoMessage(String infoMessage) {
 		this.infoMessage = infoMessage;
 	}
-	
-	
+
+	public int checkStock(int amountRequired, int amountAvailable) {
+
+		if (amountRequired <= amountAvailable) {
+			return amountRequired;
+		}
+		return amountAvailable;
+	}
+
+	public void adjustStock() {
+		for (ShoppingCartEntry entry : getCartContent()) {
+			for (Item item : getInvItems()) {
+				if (item.getItemName().equalsIgnoreCase(entry.getName()) && item.getItemSize() == entry.getProdSize()) {
+					item.setItemQuantity(item.getItemQuantity() + entry.getQuantity());
+					System.out.println("adjust stock --> items " + item.getItemQuantity());
+				}
+			}
+		}
+	}
+
 }
