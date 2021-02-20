@@ -12,3 +12,5 @@ once you chosed the required amounts a new Arraylist with entries is being creat
 ![ShopCart04](https://user-images.githubusercontent.com/72876989/107825238-71ad5a00-6d8b-11eb-9796-273c932de7f2.jpg)
 
 Once you submit the order the quantities are updated and the payments are proccessed
+
+Pm me for any technical related questions that you may have regarding the implementation
