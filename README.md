@@ -13,4 +13,4 @@ once you chosed the required amounts a new Arraylist with entries is being creat
 
 Once you submit the order the quantities are updated and the payments are proccessed
 
-Pm me for any technical related questions that you may have regarding the implementation
+## Pm me for any technical related questions that you may have regarding the implementation
